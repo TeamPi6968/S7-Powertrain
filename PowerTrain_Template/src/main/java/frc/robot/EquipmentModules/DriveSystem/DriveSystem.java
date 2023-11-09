@@ -17,28 +17,27 @@ public class DriveSystem {
     //----------------------------------------------------------------
     // Variables
     //----------------------------------------------------------------
-    
-    //----------------------------------------------------------------
-    // Constructor
-    //----------------------------------------------------------------
-    public DriveSystem(){
-
-    }
-
-    //----------------------------------------------------------------
-    // Objects
-    //----------------------------------------------------------------   
     public ProcessValues ProcessValue = new ProcessValues();
     public Setpoints Setpoint         = new Setpoints();
     public Status Status              = new Status();
     public Settings Settings          = new Settings();
     public Parameters Parameters      = new Parameters();
     public Alarms Alarm               = new Alarms();
+    
+    
+    //----------------------------------------------------------------
+    // Constructor
+    //----------------------------------------------------------------
+    public DriveSystem(){}
 
+    //----------------------------------------------------------------
+    // Objects
+    //----------------------------------------------------------------   
     public FrontLeftModule FL_Module   = new FrontLeftModule();
     public FrontRightModule FR_Module  = new FrontRightModule();
     public RearLeftModule RL_Module    = new RearLeftModule();
     public RearRightModule RR_Module   = new RearRightModule();
+
     //----------------------------------------------------------------
     // Control modules
     //----------------------------------------------------------------
@@ -46,5 +45,10 @@ public class DriveSystem {
     //----------------------------------------------------------------
     // Functions
     //----------------------------------------------------------------
+    public void Swerve(double Left_X, double Left_Y, double Right_X){
+        ProcessValue.Left_X  = Left_X;
+        ProcessValue.Left_Y  = Left_Y;
+        ProcessValue.Right_X = Right_X;
+    }
 
 }

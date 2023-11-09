@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
-
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,8 +25,9 @@ public class Robot extends TimedRobot {
   //====================================================================
   // Equipment Modules
   //====================================================================
-  private DriveSystem DriveSystem = new DriveSystem();
   private Controller Controller = new Controller();
+  private DriveSystem DriveSystem = new DriveSystem();
+  
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -88,7 +87,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    DriveSystem.Swerve(Controller.Driving.getLeftX(), Controller.Driving.getLeftY(), Controller.Driving.getRightX());
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override

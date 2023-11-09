@@ -9,5 +9,5 @@ package frc.robot.EquipmentModules.DriveSystem.DriveSystemVar;
  * but not the logic. Mostly used in operation when implementing a function.
 */
 public class Parameters {
-    
+
 }
