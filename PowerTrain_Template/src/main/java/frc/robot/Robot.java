@@ -4,9 +4,12 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.EquipmentModules.DriveSystem.DriveSystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -19,6 +22,11 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+
+  //====================================================================
+  // Equipment Modules
+  //====================================================================
+  private DriveSystem DriveSystem = new DriveSystem();
 
   /**
    * This function is run when the robot is first started up and should be used for any
