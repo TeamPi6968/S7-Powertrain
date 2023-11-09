@@ -11,13 +11,13 @@ public class FrontLeftModule {
     //----------------------------------------------------------------
 
     //----------------------------------------------------------------
-    // Standard structure
+    // Objects
     //----------------------------------------------------------------   
-    public TalonFX TranslationMotor = new TalonFX(0);
-    public TalonFX RotationMotor = new TalonFX(1);
-
     public TranslationVar TranslationVar = new TranslationVar();
     public RotationVar RotationVar = new RotationVar();
+
+    public TalonFX TranslationMotor = new TalonFX(TranslationVar.Parameters.Can_id);
+    public TalonFX RotationMotor = new TalonFX(RotationVar.Parameters.Can_id);
 
     //----------------------------------------------------------------
     // Functions

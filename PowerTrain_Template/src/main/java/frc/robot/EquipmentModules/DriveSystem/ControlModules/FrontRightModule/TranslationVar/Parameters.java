@@ -9,5 +9,5 @@ package frc.robot.EquipmentModules.DriveSystem.ControlModules.FrontRightModule.T
  * but not the logic. Mostly used in operation when implementing a function.
 */
 public class Parameters {
-
+    public int Can_id = 2;
 }
