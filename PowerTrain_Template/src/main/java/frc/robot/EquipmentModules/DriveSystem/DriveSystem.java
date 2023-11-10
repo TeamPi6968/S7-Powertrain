@@ -2,8 +2,10 @@ package frc.robot.EquipmentModules.DriveSystem;
 
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMaxAbsoluteEncoder;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import com.revrobotics.SparkMaxAbsoluteEncoder.*;
 import frc.robot.EquipmentModules.DriveSystem.ControlModules.SwerveModule.SwerveModule;
 import frc.robot.EquipmentModules.DriveSystem.DriveSystemVar.*;
 
@@ -53,6 +55,18 @@ public class DriveSystem {
     public SwerveModule RL_Module  = new SwerveModule(RL_TranslationMotor, RL_RotationMotor);
     public SwerveModule RR_Module  = new SwerveModule(RR_TranslationMotor, RR_RotationMotor);
     
+    // Encoders of Swerve modules
+    public SparkMaxAbsoluteEncoder FL_encoder = FL_Module.RotationMotor.getAbsoluteEncoder(Type.kDutyCycle);
+    public SparkMaxAbsoluteEncoder FR_encoder = FR_Module.RotationMotor.getAbsoluteEncoder(Type.kDutyCycle);
+    public SparkMaxAbsoluteEncoder RL_encoder = RL_Module.RotationMotor.getAbsoluteEncoder(Type.kDutyCycle);
+    public SparkMaxAbsoluteEncoder RR_encoder = RR_Module.RotationMotor.getAbsoluteEncoder(Type.kDutyCycle);
+    
+    // PID controllers of Swerve modules
+    public SparkMaxPIDController FL_PID = FL_Module.RotationMotor.getPIDController();
+    public SparkMaxPIDController FR_PID = FR_Module.RotationMotor.getPIDController();
+    public SparkMaxPIDController RL_PID = RL_Module.RotationMotor.getPIDController();
+    public SparkMaxPIDController RR_PID = RR_Module.RotationMotor.getPIDController();
+
     //----------------------------------------------------------------
     // Functions
     //----------------------------------------------------------------
@@ -64,7 +78,85 @@ public class DriveSystem {
         return Math.atan2 (Y, X) * (180 / Math.PI);
     }
 
-    public void Swerve(double Left_X, double Left_Y, double Right_X){
+    public void SwerveInit(){
+        // Apply position and velocity conversion factors for the turning encoder. We
+        // want these in radians and radians per second to use with WPILib's swerve
+        // APIs.
+        FL_encoder.setPositionConversionFactor(Settings.RadiansFactor); 
+        FR_encoder.setPositionConversionFactor(Settings.RadiansFactor); 
+        RL_encoder.setPositionConversionFactor(Settings.RadiansFactor); 
+        RR_encoder.setPositionConversionFactor(Settings.RadiansFactor); 
+
+        FL_encoder.setVelocityConversionFactor(Settings.RadiansPerSecondsFactor); 
+        FR_encoder.setVelocityConversionFactor(Settings.RadiansPerSecondsFactor); 
+        RL_encoder.setVelocityConversionFactor(Settings.RadiansPerSecondsFactor); 
+        RR_encoder.setVelocityConversionFactor(Settings.RadiansPerSecondsFactor); 
+
+        // Enable PID wrap around for the turning motor. This will allow the PID
+        // controller to go through 0 to get to the setpoint i.e. going from 350
+        // degrees to 10 degrees will go through 0 rather than the other direction
+        // which is a longer route.
+        FL_PID.setPositionPIDWrappingEnabled(true);
+        FL_PID.setPositionPIDWrappingMinInput(Settings.MinimalAngle);
+        FL_PID.setPositionPIDWrappingMaxInput(Settings.MaximumAngle);
+
+        FR_PID.setPositionPIDWrappingEnabled(true);
+        FR_PID.setPositionPIDWrappingMinInput(Settings.MinimalAngle);
+        FR_PID.setPositionPIDWrappingMaxInput(Settings.MaximumAngle);
+
+        RL_PID.setPositionPIDWrappingEnabled(true);
+        RL_PID.setPositionPIDWrappingMinInput(Settings.MinimalAngle);
+        RL_PID.setPositionPIDWrappingMaxInput(Settings.MaximumAngle);
+
+        RR_PID.setPositionPIDWrappingEnabled(true);
+        RR_PID.setPositionPIDWrappingMinInput(Settings.MinimalAngle);
+        RR_PID.setPositionPIDWrappingMaxInput(Settings.MaximumAngle);
+
+        // Set the PID Controller to use the duty cycle encoder on the swerve
+        // module instead of the built in NEO550 encoder.
+        FL_PID.setFeedbackDevice(FL_encoder);
+        FR_PID.setFeedbackDevice(FR_encoder);
+        RL_PID.setFeedbackDevice(RL_encoder);
+        RR_PID.setFeedbackDevice(RR_encoder);
+
+        // Set the PID gains for the turning motor.
+        FL_PID.setP(FL_Module.RotationVar.Settings.P);
+        FL_PID.setI(FL_Module.RotationVar.Settings.I);
+        FL_PID.setD(FL_Module.RotationVar.Settings.D);
+        FL_PID.setOutputRange(FL_Module.RotationVar.Settings.MinimalOutput, FL_Module.RotationVar.Settings.MaximalOutput);
+
+        FR_PID.setP(FR_Module.RotationVar.Settings.P);
+        FR_PID.setI(FR_Module.RotationVar.Settings.I);
+        FR_PID.setD(FR_Module.RotationVar.Settings.D);
+        FR_PID.setOutputRange(FR_Module.RotationVar.Settings.MinimalOutput, FR_Module.RotationVar.Settings.MaximalOutput);
+
+        RL_PID.setP(RL_Module.RotationVar.Settings.P);
+        RL_PID.setI(RL_Module.RotationVar.Settings.I);
+        RL_PID.setD(RL_Module.RotationVar.Settings.D);
+        RL_PID.setOutputRange(RL_Module.RotationVar.Settings.MinimalOutput, RL_Module.RotationVar.Settings.MaximalOutput);
+
+        RR_PID.setP(RR_Module.RotationVar.Settings.P);
+        RR_PID.setI(RR_Module.RotationVar.Settings.I);
+        RR_PID.setD(RR_Module.RotationVar.Settings.D);
+        RR_PID.setOutputRange(RR_Module.RotationVar.Settings.MinimalOutput, RR_Module.RotationVar.Settings.MaximalOutput);
+
+        FL_Module.RotationMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+        FR_Module.RotationMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+        RL_Module.RotationMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+        RR_Module.RotationMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+
+        FL_Module.RotationMotor.setSmartCurrentLimit(FL_Module.RotationVar.Settings.CurrentLimit);
+        FR_Module.RotationMotor.setSmartCurrentLimit(FR_Module.RotationVar.Settings.CurrentLimit);
+        RL_Module.RotationMotor.setSmartCurrentLimit(RL_Module.RotationVar.Settings.CurrentLimit);
+        RR_Module.RotationMotor.setSmartCurrentLimit(RR_Module.RotationVar.Settings.CurrentLimit);
+
+        FL_Module.RotationMotor.burnFlash();
+        FR_Module.RotationMotor.burnFlash();
+        RL_Module.RotationMotor.burnFlash();
+        RR_Module.RotationMotor.burnFlash();
+    }
+
+    public void SwerveLoop(double Left_X, double Left_Y, double Right_X){
         // Connect controller inputs with meaning of swerve inputs
         ProcessValue.Straffe_X  = Left_X;
         ProcessValue.Straffe_Y  = Left_Y * -1;

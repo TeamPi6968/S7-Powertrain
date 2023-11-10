@@ -5,7 +5,6 @@ import com.revrobotics.CANSparkMax;
 
 import frc.robot.EquipmentModules.DriveSystem.ControlModules.SwerveModule.RotationVar.RotationVar;
 import frc.robot.EquipmentModules.DriveSystem.ControlModules.SwerveModule.TranslationVar.TranslationVar;
-import frc.robot.EquipmentModules.DriveSystem.ControlModules.SwerveModule.ProcessValues;
 
 public class SwerveModule {
     //----------------------------------------------------------------
