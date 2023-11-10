@@ -8,5 +8,5 @@ package frc.robot.EquipmentModules.DriveSystem.ControlModules.FrontRightModule.R
  * Process values are outputs of an certain calculatons.
 */
 public class ProcessValues {
-
+    public double Angle;
 }

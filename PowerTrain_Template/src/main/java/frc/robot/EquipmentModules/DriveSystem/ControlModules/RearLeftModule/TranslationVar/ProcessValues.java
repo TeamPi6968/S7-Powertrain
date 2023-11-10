@@ -8,5 +8,5 @@ package frc.robot.EquipmentModules.DriveSystem.ControlModules.RearLeftModule.Tra
  * Process values are outputs of an certain calculatons.
 */
 public class ProcessValues {
-    public double PercentSpeed = 0.5;
+    public double Speed;
 }

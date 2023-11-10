@@ -46,9 +46,34 @@ public class DriveSystem {
     // Functions
     //----------------------------------------------------------------
     public void Swerve(double Left_X, double Left_Y, double Right_X){
-        ProcessValue.Left_X  = Left_X;
-        ProcessValue.Left_Y  = Left_Y;
-        ProcessValue.Right_X = Right_X;
+        ProcessValue.Straffe_X  = Left_X;
+        ProcessValue.Straffe_Y  = Left_Y * -1;
+        ProcessValue.Rotation_X = Right_X;
+
+        final double DiagonalLength = Math.sqrt((Settings.Length * Settings.Length)+(Settings.Width * Settings.Width));
+
+        // resulting vectors
+        double FL_x = ProcessValue.Straffe_X + ProcessValue.Rotation_X * (Settings.Length / DiagonalLength);
+        double FL_y = ProcessValue.Straffe_Y - ProcessValue.Rotation_X * (Settings.Width  / DiagonalLength);
+        double FR_x = ProcessValue.Straffe_X + ProcessValue.Rotation_X * (Settings.Length / DiagonalLength);
+        double FR_y = ProcessValue.Straffe_Y + ProcessValue.Rotation_X * (Settings.Width  / DiagonalLength);
+        double RL_x = ProcessValue.Straffe_X - ProcessValue.Rotation_X * (Settings.Length / DiagonalLength);
+        double RL_y = ProcessValue.Straffe_Y - ProcessValue.Rotation_X * (Settings.Width  / DiagonalLength); 
+        double RR_x = ProcessValue.Straffe_X - ProcessValue.Rotation_X * (Settings.Length / DiagonalLength); 
+        double RR_y = ProcessValue.Straffe_Y + ProcessValue.Rotation_X * (Settings.Width  / DiagonalLength); 
+
+        // Set translation speed
+        FL_Module.TranslationVar.ProcessValue.Speed = Math.sqrt ((FL_x * FL_x) + (FL_y * FL_y)); //[%]
+        FR_Module.TranslationVar.ProcessValue.Speed = Math.sqrt ((FR_x * FR_x) + (FR_y * FR_y)); //[%]
+        RL_Module.TranslationVar.ProcessValue.Speed = Math.sqrt ((RL_x * RL_x) + (RL_y * RL_y)); //[%]
+        RR_Module.TranslationVar.ProcessValue.Speed = Math.sqrt ((RR_x * RR_x) + (RR_y * RR_y)); //[%]
+
+        // Set Rotation angle
+        FL_Module.RotationVar.ProcessValue.Angle = Math.atan2 (FL_y, FL_x) * (180 / Math.PI); //[°]
+        FR_Module.RotationVar.ProcessValue.Angle = Math.atan2 (FR_y, FR_x) * (180 / Math.PI); //[°]
+        RL_Module.RotationVar.ProcessValue.Angle = Math.atan2 (RL_y, RL_x) * (180 / Math.PI); //[°]
+        RR_Module.RotationVar.ProcessValue.Angle = Math.atan2 (RR_y, RR_x) * (180 / Math.PI); //[°]
+
     }
 
 }

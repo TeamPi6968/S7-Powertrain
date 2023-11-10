@@ -9,5 +9,6 @@ package frc.robot.EquipmentModules.DriveSystem.DriveSystemVar;
  * NOTE: When variable value is set then make the variable final (constant).
 */
 public class Settings {
-    public int test;
+    public final int Length = 600; // [mm] Length from front wheel to rear wheel
+    public final int Width  = 600; // [mm] Width from Left wheel to right wheel
 }
