@@ -1,5 +1,6 @@
 package frc.robot.EquipmentModules.DriveSystem;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
@@ -82,15 +83,15 @@ public class DriveSystem {
         // Apply position and velocity conversion factors for the turning encoder. We
         // want these in radians and radians per second to use with WPILib's swerve
         // APIs.
-        FL_encoder.setPositionConversionFactor(Settings.RadiansFactor); 
-        FR_encoder.setPositionConversionFactor(Settings.RadiansFactor); 
-        RL_encoder.setPositionConversionFactor(Settings.RadiansFactor); 
-        RR_encoder.setPositionConversionFactor(Settings.RadiansFactor); 
+        FL_encoder.setPositionConversionFactor(Settings.DegreeFactor); 
+        FR_encoder.setPositionConversionFactor(Settings.DegreeFactor); 
+        RL_encoder.setPositionConversionFactor(Settings.DegreeFactor); 
+        RR_encoder.setPositionConversionFactor(Settings.DegreeFactor); 
 
-        FL_encoder.setVelocityConversionFactor(Settings.RadiansPerSecondsFactor); 
-        FR_encoder.setVelocityConversionFactor(Settings.RadiansPerSecondsFactor); 
-        RL_encoder.setVelocityConversionFactor(Settings.RadiansPerSecondsFactor); 
-        RR_encoder.setVelocityConversionFactor(Settings.RadiansPerSecondsFactor); 
+        FL_encoder.setVelocityConversionFactor(Settings.RotationPerSecondsFactor); 
+        FR_encoder.setVelocityConversionFactor(Settings.RotationPerSecondsFactor); 
+        RL_encoder.setVelocityConversionFactor(Settings.RotationPerSecondsFactor); 
+        RR_encoder.setVelocityConversionFactor(Settings.RotationPerSecondsFactor); 
 
         // Enable PID wrap around for the turning motor. This will allow the PID
         // controller to go through 0 to get to the setpoint i.e. going from 350
@@ -189,6 +190,17 @@ public class DriveSystem {
         RL_Module.RotationVar.ProcessValue.Angle = ResultingAngle(RL_Module.ProcessValues.X, RL_Module.ProcessValues.Y);
         RR_Module.RotationVar.ProcessValue.Angle = ResultingAngle(RR_Module.ProcessValues.X, RR_Module.ProcessValues.Y);
 
+        // Set Speed of wheel
+        FL_Module.TranslationMotor.set(ControlMode.PercentOutput, FL_Module.TranslationVar.ProcessValue.Speed);
+        FR_Module.TranslationMotor.set(ControlMode.PercentOutput, FR_Module.TranslationVar.ProcessValue.Speed);
+        RL_Module.TranslationMotor.set(ControlMode.PercentOutput, RL_Module.TranslationVar.ProcessValue.Speed);
+        RR_Module.TranslationMotor.set(ControlMode.PercentOutput, RR_Module.TranslationVar.ProcessValue.Speed);
+
+        // Set Position of wheel
+        FL_PID.setReference(FL_Module.RotationVar.ProcessValue.Angle, CANSparkMax.ControlType.kPosition);
+        FR_PID.setReference(FR_Module.RotationVar.ProcessValue.Angle, CANSparkMax.ControlType.kPosition);
+        RL_PID.setReference(RL_Module.RotationVar.ProcessValue.Angle, CANSparkMax.ControlType.kPosition);
+        RR_PID.setReference(RR_Module.RotationVar.ProcessValue.Angle, CANSparkMax.ControlType.kPosition);
     }
 
 }
