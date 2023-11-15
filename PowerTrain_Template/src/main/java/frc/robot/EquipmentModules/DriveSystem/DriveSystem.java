@@ -9,7 +9,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.*;
 import frc.robot.EquipmentModules.DriveSystem.ControlModules.SwerveModule.SwerveModule;
 import frc.robot.EquipmentModules.DriveSystem.DriveSystemVar.*;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //====================================================================
 // Equipment Module: Drive system
 //====================================================================
@@ -79,10 +79,32 @@ public class DriveSystem {
         return Math.atan2 (Y, X) * (180 / Math.PI);
     }
 
+    // If controller does nothing there are minimal values still. So with deadspot this will be set to 0.
+    public double Deadspot(double input, double deadspot){
+
+        if(Math.abs(input) < deadspot) {
+            input = 0;
+        }
+        return input;
+    }
+
     public void SwerveInit(){
+        // Set inverted can be used if the logic of the motor is the oposite. 
+        // Since the direction could defer for every motor.
+        FL_Module.TranslationMotor.setInverted(false);
+        FR_Module.TranslationMotor.setInverted(false);
+        RL_Module.TranslationMotor.setInverted(false);
+        RR_Module.TranslationMotor.setInverted(false);
+
+        FL_Module.RotationMotor.setInverted(false);
+        FR_Module.RotationMotor.setInverted(false);
+        RL_Module.RotationMotor.setInverted(false);
+        RR_Module.RotationMotor.setInverted(false);
+
         // Apply position and velocity conversion factors for the turning encoder. We
         // want these in radians and radians per second to use with WPILib's swerve
-        // APIs.
+        // APIs. 
+        // NOTE: Not sure what the value should be or if it's needed.
         FL_encoder.setPositionConversionFactor(Settings.DegreeFactor); 
         FR_encoder.setPositionConversionFactor(Settings.DegreeFactor); 
         RL_encoder.setPositionConversionFactor(Settings.DegreeFactor); 
@@ -158,10 +180,10 @@ public class DriveSystem {
     }
 
     public void SwerveLoop(double Left_X, double Left_Y, double Right_X){
-        // Connect controller inputs with meaning of swerve inputs
-        ProcessValue.Straffe_X  = Left_X;
-        ProcessValue.Straffe_Y  = Left_Y * -1;
-        ProcessValue.RotationLength = Right_X;
+
+            ProcessValue.Straffe_X  = Left_X;
+            ProcessValue.Straffe_Y  = Left_Y * -1;
+            ProcessValue.RotationLength = Right_X;
 
         // Calculate Diagonal to calculate the X and Y of Rotation vector.
         ProcessValue.DiagonalLength = ResultingVector(Settings.Width, Settings.Length);
@@ -184,12 +206,24 @@ public class DriveSystem {
         RL_Module.TranslationVar.ProcessValue.Speed = ResultingVector(RL_Module.ProcessValues.X, RL_Module.ProcessValues.Y);
         RR_Module.TranslationVar.ProcessValue.Speed = ResultingVector(RR_Module.ProcessValues.X, RR_Module.ProcessValues.Y);
 
-        // Calculate Rotation angle
-        FL_Module.RotationVar.ProcessValue.Angle = ResultingAngle(FL_Module.ProcessValues.X, FL_Module.ProcessValues.Y);
-        FR_Module.RotationVar.ProcessValue.Angle = ResultingAngle(FR_Module.ProcessValues.X, FR_Module.ProcessValues.Y);
-        RL_Module.RotationVar.ProcessValue.Angle = ResultingAngle(RL_Module.ProcessValues.X, RL_Module.ProcessValues.Y);
-        RR_Module.RotationVar.ProcessValue.Angle = ResultingAngle(RR_Module.ProcessValues.X, RR_Module.ProcessValues.Y);
+        FL_Module.TranslationVar.ProcessValue.Speed = Deadspot(FL_Module.TranslationVar.ProcessValue.Speed, Settings.deadspot);
+        FR_Module.TranslationVar.ProcessValue.Speed = Deadspot(FR_Module.TranslationVar.ProcessValue.Speed, Settings.deadspot);
+        RL_Module.TranslationVar.ProcessValue.Speed = Deadspot(RL_Module.TranslationVar.ProcessValue.Speed, Settings.deadspot);
+        RR_Module.TranslationVar.ProcessValue.Speed = Deadspot(RR_Module.TranslationVar.ProcessValue.Speed, Settings.deadspot);
 
+        ProcessValue.AddingDeadspots =   FL_Module.TranslationVar.ProcessValue.Speed
+                                       + FR_Module.TranslationVar.ProcessValue.Speed
+                                       + RL_Module.TranslationVar.ProcessValue.Speed
+                                       + RR_Module.TranslationVar.ProcessValue.Speed;
+
+        if(ProcessValue.AddingDeadspots != 0){
+            // Calculate Rotation angle
+            FL_Module.RotationVar.ProcessValue.Angle = ResultingAngle(FL_Module.ProcessValues.X, FL_Module.ProcessValues.Y);
+            FR_Module.RotationVar.ProcessValue.Angle = ResultingAngle(FR_Module.ProcessValues.X, FR_Module.ProcessValues.Y);
+            RL_Module.RotationVar.ProcessValue.Angle = ResultingAngle(RL_Module.ProcessValues.X, RL_Module.ProcessValues.Y);
+            RR_Module.RotationVar.ProcessValue.Angle = ResultingAngle(RR_Module.ProcessValues.X, RR_Module.ProcessValues.Y);
+        }
+            
         // Set Speed of wheel
         FL_Module.TranslationMotor.set(ControlMode.PercentOutput, FL_Module.TranslationVar.ProcessValue.Speed);
         FR_Module.TranslationMotor.set(ControlMode.PercentOutput, FR_Module.TranslationVar.ProcessValue.Speed);
@@ -201,6 +235,16 @@ public class DriveSystem {
         FR_PID.setReference(FR_Module.RotationVar.ProcessValue.Angle, CANSparkMax.ControlType.kPosition);
         RL_PID.setReference(RL_Module.RotationVar.ProcessValue.Angle, CANSparkMax.ControlType.kPosition);
         RR_PID.setReference(RR_Module.RotationVar.ProcessValue.Angle, CANSparkMax.ControlType.kPosition);
+
+        SmartDashboard.putNumber("Front left speed" , FL_Module.TranslationVar.ProcessValue.Speed);
+        SmartDashboard.putNumber("Front Right speed", FR_Module.TranslationVar.ProcessValue.Speed);
+        SmartDashboard.putNumber("Rear left speed"  , RL_Module.TranslationVar.ProcessValue.Speed);
+        SmartDashboard.putNumber("Rear Right speed" , RR_Module.TranslationVar.ProcessValue.Speed);
+
+        SmartDashboard.putNumber("Front left Angle" , FL_Module.RotationVar.ProcessValue.Angle);
+        SmartDashboard.putNumber("Front Right Angle", FR_Module.RotationVar.ProcessValue.Angle);
+        SmartDashboard.putNumber("Rear left Angle"  , RL_Module.RotationVar.ProcessValue.Angle);
+        SmartDashboard.putNumber("Rear Right Angle" , RR_Module.RotationVar.ProcessValue.Angle);
     }
 
 }

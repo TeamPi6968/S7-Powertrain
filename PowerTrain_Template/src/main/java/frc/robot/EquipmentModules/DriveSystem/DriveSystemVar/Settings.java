@@ -15,4 +15,5 @@ public class Settings {
     public final double RotationPerSecondsFactor = 360 / 60; // Radian / seconds
     public final double MinimalAngle = Math.toRadians(0);
     public final double MaximumAngle = Math.toRadians(360);
+    public final double deadspot = 0.1;
 }

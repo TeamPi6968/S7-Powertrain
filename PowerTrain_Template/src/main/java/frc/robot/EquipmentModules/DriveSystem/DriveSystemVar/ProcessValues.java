@@ -14,4 +14,6 @@ public class ProcessValues {
     public double Rotation_X;
     public double Rotation_Y;
     public double DiagonalLength;
+    public double AddingDeadspots;
+    
 }
