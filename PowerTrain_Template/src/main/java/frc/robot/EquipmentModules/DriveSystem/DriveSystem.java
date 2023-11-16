@@ -10,6 +10,8 @@ import com.revrobotics.SparkMaxAbsoluteEncoder.*;
 import frc.robot.EquipmentModules.DriveSystem.ControlModules.SwerveModule.SwerveModule;
 import frc.robot.EquipmentModules.DriveSystem.DriveSystemVar.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.EquipmentModules.General.Functions.Measuring;
+
 //====================================================================
 // Equipment Module: Drive system
 //====================================================================
@@ -24,6 +26,8 @@ public class DriveSystem {
     public Settings Settings          = new Settings();
     public Parameters Parameters      = new Parameters();
     public Alarms Alarm               = new Alarms();
+
+    public Measuring Measuring = new Measuring();
     
     
     //----------------------------------------------------------------
@@ -71,22 +75,6 @@ public class DriveSystem {
     //----------------------------------------------------------------
     // Functions
     //----------------------------------------------------------------
-    private double ResultingVector(double X, double Y){
-        return Math.sqrt((X * X)+(Y * Y));
-    }
-
-    private double ResultingAngle(double X, double Y){
-        return Math.atan2 (Y, X) * (180 / Math.PI);
-    }
-
-    // If controller does nothing there are minimal values still. So with deadspot this will be set to 0.
-    public double Deadspot(double input, double deadspot){
-
-        if(Math.abs(input) < deadspot) {
-            input = 0;
-        }
-        return input;
-    }
 
     public void SwerveInit(){
         // Set inverted can be used if the logic of the motor is the oposite. 
@@ -180,15 +168,21 @@ public class DriveSystem {
     }
 
     public void SwerveLoop(double Left_X, double Left_Y, double Right_X){
+        // Connect controller input to other variable that explaines meaning of input
+        ProcessValue.Straffe_X      = ProcessValue.Deadspot(Left_X, Settings.deadspot);
+        ProcessValue.Straffe_Y      = ProcessValue.Deadspot((Left_Y * -1), Settings.deadspot);
+        ProcessValue.RotationLength = Right_X;
 
-            ProcessValue.Straffe_X  = Left_X;
-            ProcessValue.Straffe_Y  = Left_Y * -1;
-            ProcessValue.RotationLength = Right_X;
-
+        SmartDashboard.putNumber("Controller Left Y" , ProcessValue.Straffe_Y);
+        SmartDashboard.putNumber("Controller Left X" , ProcessValue.Straffe_X);
+        SmartDashboard.putNumber("Controller Right X", ProcessValue.RotationLength);
+ 
         // Calculate Diagonal to calculate the X and Y of Rotation vector.
-        ProcessValue.DiagonalLength = ResultingVector(Settings.Width, Settings.Length);
-        ProcessValue.Rotation_X = ProcessValue.RotationLength * (Settings.Length / ProcessValue.DiagonalLength);
-        ProcessValue.Rotation_Y = ProcessValue.RotationLength * (Settings.Width  / ProcessValue.DiagonalLength);
+        ProcessValue.DiagonalLength = ProcessValue.ResultingVector(Settings.Width, Settings.Length);
+        ProcessValue.Rotation_X     = ProcessValue.RotationLength * (Settings.Length / ProcessValue.DiagonalLength);
+        ProcessValue.Rotation_Y     = ProcessValue.RotationLength * (Settings.Width  / ProcessValue.DiagonalLength);
+        ProcessValue.Rotation_X     = ProcessValue.Deadspot(ProcessValue.Rotation_X, Settings.deadspot);
+        ProcessValue.Rotation_Y     = ProcessValue.Deadspot(ProcessValue.Rotation_Y, Settings.deadspot);
 
         // Calculate resulting X and Y
         FL_Module.ProcessValues.X = ProcessValue.Straffe_X + ProcessValue.Rotation_X;
@@ -200,32 +194,65 @@ public class DriveSystem {
         RR_Module.ProcessValues.X = ProcessValue.Straffe_X - ProcessValue.Rotation_X;
         RR_Module.ProcessValues.Y = ProcessValue.Straffe_Y - ProcessValue.Rotation_Y;
 
-        // Calculate translation speed
-        FL_Module.TranslationVar.ProcessValue.Speed = ResultingVector(FL_Module.ProcessValues.X, FL_Module.ProcessValues.Y);
-        FR_Module.TranslationVar.ProcessValue.Speed = ResultingVector(FR_Module.ProcessValues.X, FR_Module.ProcessValues.Y);
-        RL_Module.TranslationVar.ProcessValue.Speed = ResultingVector(RL_Module.ProcessValues.X, RL_Module.ProcessValues.Y);
-        RR_Module.TranslationVar.ProcessValue.Speed = ResultingVector(RR_Module.ProcessValues.X, RR_Module.ProcessValues.Y);
+        // Calculate translation speed without limits: 
+        FL_Module.TranslationVar.ProcessValue.Speed = ProcessValue.ResultingVector(FL_Module.ProcessValues.X, FL_Module.ProcessValues.Y);
+        FR_Module.TranslationVar.ProcessValue.Speed = ProcessValue.ResultingVector(FR_Module.ProcessValues.X, FR_Module.ProcessValues.Y);
+        RL_Module.TranslationVar.ProcessValue.Speed = ProcessValue.ResultingVector(RL_Module.ProcessValues.X, RL_Module.ProcessValues.Y);
+        RR_Module.TranslationVar.ProcessValue.Speed = ProcessValue.ResultingVector(RR_Module.ProcessValues.X, RR_Module.ProcessValues.Y);
 
-        FL_Module.TranslationVar.ProcessValue.Speed = Deadspot(FL_Module.TranslationVar.ProcessValue.Speed, Settings.deadspot);
-        FR_Module.TranslationVar.ProcessValue.Speed = Deadspot(FR_Module.TranslationVar.ProcessValue.Speed, Settings.deadspot);
-        RL_Module.TranslationVar.ProcessValue.Speed = Deadspot(RL_Module.TranslationVar.ProcessValue.Speed, Settings.deadspot);
-        RR_Module.TranslationVar.ProcessValue.Speed = Deadspot(RR_Module.TranslationVar.ProcessValue.Speed, Settings.deadspot);
+        // Set status of Range depending what part of joystick is controlled:
+        // When only translation is used
+        if(   ProcessValue.ResultingVector(ProcessValue.Straffe_X, ProcessValue.Straffe_Y) != 0 
+           && ProcessValue.Deadspot(ProcessValue.RotationLength, Settings.deadspot) == 0){
+            Status.MaxSpeedRange = Settings.OldSpeedRangeTranslation;
+        }
+        // When only rotation is used
+        else if(   ProcessValue.ResultingVector(ProcessValue.Straffe_X, ProcessValue.Straffe_Y) == 0 
+                && ProcessValue.Deadspot(ProcessValue.RotationLength, Settings.deadspot) != 0){
+            Status.MaxSpeedRange = Settings.OldSpeedRangeRotation;
+        }
+        // When translation and rotation is combined
+        else{
+            Status.MaxSpeedRange = Settings.OldSpeedRangeBoth;
+        }
 
+        // Set the speed to the correct range between 0 and 1
+        FL_Module.TranslationVar.ProcessValue.Speed = ProcessValue.NormalizeRange(FL_Module.TranslationVar.ProcessValue.Speed, Status.MaxSpeedRange, Settings.NewSpeedRange);
+        FR_Module.TranslationVar.ProcessValue.Speed = ProcessValue.NormalizeRange(FR_Module.TranslationVar.ProcessValue.Speed, Status.MaxSpeedRange, Settings.NewSpeedRange);
+        RL_Module.TranslationVar.ProcessValue.Speed = ProcessValue.NormalizeRange(RL_Module.TranslationVar.ProcessValue.Speed, Status.MaxSpeedRange, Settings.NewSpeedRange);
+        RR_Module.TranslationVar.ProcessValue.Speed = ProcessValue.NormalizeRange(RR_Module.TranslationVar.ProcessValue.Speed, Status.MaxSpeedRange, Settings.NewSpeedRange);
+
+        // Add deadspot of the total speed
+        FL_Module.TranslationVar.ProcessValue.Speed = ProcessValue.Deadspot(FL_Module.TranslationVar.ProcessValue.Speed, Settings.deadspot);
+        FR_Module.TranslationVar.ProcessValue.Speed = ProcessValue.Deadspot(FR_Module.TranslationVar.ProcessValue.Speed, Settings.deadspot);
+        RL_Module.TranslationVar.ProcessValue.Speed = ProcessValue.Deadspot(RL_Module.TranslationVar.ProcessValue.Speed, Settings.deadspot);
+        RR_Module.TranslationVar.ProcessValue.Speed = ProcessValue.Deadspot(RR_Module.TranslationVar.ProcessValue.Speed, Settings.deadspot);
+
+        // This is to know if the controller is not used. 
+        // Meaning that all speeds are 0 when controller is not used.
         ProcessValue.AddingDeadspots =   FL_Module.TranslationVar.ProcessValue.Speed
                                        + FR_Module.TranslationVar.ProcessValue.Speed
                                        + RL_Module.TranslationVar.ProcessValue.Speed
                                        + RR_Module.TranslationVar.ProcessValue.Speed;
 
+        // The angle is only calculating if the wheels have a set speed. 
+        // Otherwise when controller is not used it will remain the previous angle
         if(ProcessValue.AddingDeadspots != 0){
-            // Calculate Rotation angle
-            FL_Module.RotationVar.ProcessValue.Angle = ResultingAngle(FL_Module.ProcessValues.X, FL_Module.ProcessValues.Y);
-            FR_Module.RotationVar.ProcessValue.Angle = ResultingAngle(FR_Module.ProcessValues.X, FR_Module.ProcessValues.Y);
-            RL_Module.RotationVar.ProcessValue.Angle = ResultingAngle(RL_Module.ProcessValues.X, RL_Module.ProcessValues.Y);
-            RR_Module.RotationVar.ProcessValue.Angle = ResultingAngle(RR_Module.ProcessValues.X, RR_Module.ProcessValues.Y);
+            // Calculate Rotation angle: Range -180 | 180
+            FL_Module.RotationVar.ProcessValue.Angle = ProcessValue.ResultingAngle(FL_Module.ProcessValues.X, FL_Module.ProcessValues.Y);
+            FR_Module.RotationVar.ProcessValue.Angle = ProcessValue.ResultingAngle(FR_Module.ProcessValues.X, FR_Module.ProcessValues.Y);
+            RL_Module.RotationVar.ProcessValue.Angle = ProcessValue.ResultingAngle(RL_Module.ProcessValues.X, RL_Module.ProcessValues.Y);
+            RR_Module.RotationVar.ProcessValue.Angle = ProcessValue.ResultingAngle(RR_Module.ProcessValues.X, RR_Module.ProcessValues.Y);
+
+            // Calculate Rotation angle: Range 0 | 360
+            FL_Module.RotationVar.ProcessValue.Angle = ProcessValue.SetAngleRange(FL_Module.RotationVar.ProcessValue.Angle);
+            FR_Module.RotationVar.ProcessValue.Angle = ProcessValue.SetAngleRange(FR_Module.RotationVar.ProcessValue.Angle);
+            RL_Module.RotationVar.ProcessValue.Angle = ProcessValue.SetAngleRange(RL_Module.RotationVar.ProcessValue.Angle);
+            RR_Module.RotationVar.ProcessValue.Angle = ProcessValue.SetAngleRange(RR_Module.RotationVar.ProcessValue.Angle);
         }
-            
+
         // Set Speed of wheel
-        FL_Module.TranslationMotor.set(ControlMode.PercentOutput, FL_Module.TranslationVar.ProcessValue.Speed);
+        /*FL_Module.TranslationMotor.set(ControlMode.PercentOutput, FL_Module.TranslationVar.ProcessValue.Speed);
         FR_Module.TranslationMotor.set(ControlMode.PercentOutput, FR_Module.TranslationVar.ProcessValue.Speed);
         RL_Module.TranslationMotor.set(ControlMode.PercentOutput, RL_Module.TranslationVar.ProcessValue.Speed);
         RR_Module.TranslationMotor.set(ControlMode.PercentOutput, RR_Module.TranslationVar.ProcessValue.Speed);
@@ -234,17 +261,20 @@ public class DriveSystem {
         FL_PID.setReference(FL_Module.RotationVar.ProcessValue.Angle, CANSparkMax.ControlType.kPosition);
         FR_PID.setReference(FR_Module.RotationVar.ProcessValue.Angle, CANSparkMax.ControlType.kPosition);
         RL_PID.setReference(RL_Module.RotationVar.ProcessValue.Angle, CANSparkMax.ControlType.kPosition);
-        RR_PID.setReference(RR_Module.RotationVar.ProcessValue.Angle, CANSparkMax.ControlType.kPosition);
+        RR_PID.setReference(RR_Module.RotationVar.ProcessValue.Angle, CANSparkMax.ControlType.kPosition);*/
 
-        SmartDashboard.putNumber("Front left speed" , FL_Module.TranslationVar.ProcessValue.Speed);
-        SmartDashboard.putNumber("Front Right speed", FR_Module.TranslationVar.ProcessValue.Speed);
-        SmartDashboard.putNumber("Rear left speed"  , RL_Module.TranslationVar.ProcessValue.Speed);
-        SmartDashboard.putNumber("Rear Right speed" , RR_Module.TranslationVar.ProcessValue.Speed);
+        Measuring.ReadValue("Front left speed" , FL_Module.TranslationVar.ProcessValue.Speed);
+        Measuring.ReadValue("Front Right speed", FR_Module.TranslationVar.ProcessValue.Speed);
+        Measuring.ReadValue("Rear left speed"  , RL_Module.TranslationVar.ProcessValue.Speed);
+        Measuring.ReadValue("Rear Right speed" , RR_Module.TranslationVar.ProcessValue.Speed);
 
-        SmartDashboard.putNumber("Front left Angle" , FL_Module.RotationVar.ProcessValue.Angle);
-        SmartDashboard.putNumber("Front Right Angle", FR_Module.RotationVar.ProcessValue.Angle);
-        SmartDashboard.putNumber("Rear left Angle"  , RL_Module.RotationVar.ProcessValue.Angle);
-        SmartDashboard.putNumber("Rear Right Angle" , RR_Module.RotationVar.ProcessValue.Angle);
+        Measuring.ReadValue("Front left Angle" , FL_Module.RotationVar.ProcessValue.Angle);
+        Measuring.ReadValue("Front Right Angle", FR_Module.RotationVar.ProcessValue.Angle);
+        Measuring.ReadValue("Rear left Angle"  , RL_Module.RotationVar.ProcessValue.Angle);
+        Measuring.ReadValue("Rear Right Angle" , RR_Module.RotationVar.ProcessValue.Angle);
+
+        Measuring.ReadValue("Status Max Speed", Status.MaxSpeedRange[1]);
+
     }
 
 }

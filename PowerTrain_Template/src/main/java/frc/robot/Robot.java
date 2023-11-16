@@ -85,11 +85,21 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     DriveSystem.SwerveInit();
+    
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    // When option button is pressed then the slow speed factor is activated 
+    if(Controller.Driving.getOptionsButtonPressed()){
+      DriveSystem.ProcessValue.SetMaxSpeed(DriveSystem.Settings.SlowSpeedFactor);
+    }
+    // when the option button is not activated then the speed is at it's fastest
+    else{
+      DriveSystem.ProcessValue.SetMaxSpeed(DriveSystem.Settings.MaxSpeedFactor);
+    }
+
     DriveSystem.SwerveLoop(Controller.Driving.getLeftX(), Controller.Driving.getLeftY(), Controller.Driving.getRightX());
   }
 
