@@ -91,8 +91,11 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    
+  boolean toggle = Controller.ControllerVar.Status.Toggle(Controller.Driving.getOptionsButtonPressed());
+
     // When option button is pressed then the slow speed factor is activated 
-    if(Controller.Driving.getOptionsButtonPressed()){
+    if(toggle){
       DriveSystem.ProcessValue.SetMaxSpeed(DriveSystem.Settings.SlowSpeedFactor);
     }
     // when the option button is not activated then the speed is at it's fastest

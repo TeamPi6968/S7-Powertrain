@@ -18,8 +18,8 @@ public class Controller{
     //----------------------------------------------------------------
     // Objects
     //----------------------------------------------------------------   
-    public ControllerVar Controller = new ControllerVar(); 
-    public FakePS4Controller Driving = new FakePS4Controller(Controller.Parameters.DrivingPort);
+    public ControllerVar ControllerVar = new ControllerVar(); 
+    public FakePS4Controller Driving = new FakePS4Controller(ControllerVar.Parameters.DrivingPort);
 
     //----------------------------------------------------------------
     // Functions
