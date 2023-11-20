@@ -3,13 +3,9 @@ package frc.robot.EquipmentModules.DriveSystem;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkMaxAbsoluteEncoder;
-import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxAbsoluteEncoder.*;
 import frc.robot.EquipmentModules.DriveSystem.ControlModules.SwerveModule.SwerveModule;
 import frc.robot.EquipmentModules.DriveSystem.DriveSystemVar.*;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.EquipmentModules.General.Functions.Measuring;
 
 //====================================================================
@@ -59,18 +55,6 @@ public class DriveSystem {
     public SwerveModule FR_Module  = new SwerveModule(FR_TranslationMotor, FR_RotationMotor);
     public SwerveModule RL_Module  = new SwerveModule(RL_TranslationMotor, RL_RotationMotor);
     public SwerveModule RR_Module  = new SwerveModule(RR_TranslationMotor, RR_RotationMotor);
-    
-    // Encoders of Swerve modules
-    public SparkMaxAbsoluteEncoder FL_encoder = FL_Module.RotationMotor.getAbsoluteEncoder(Type.kDutyCycle);
-    public SparkMaxAbsoluteEncoder FR_encoder = FR_Module.RotationMotor.getAbsoluteEncoder(Type.kDutyCycle);
-    public SparkMaxAbsoluteEncoder RL_encoder = RL_Module.RotationMotor.getAbsoluteEncoder(Type.kDutyCycle);
-    public SparkMaxAbsoluteEncoder RR_encoder = RR_Module.RotationMotor.getAbsoluteEncoder(Type.kDutyCycle);
-    
-    // PID controllers of Swerve modules
-    public SparkMaxPIDController FL_PID = FL_Module.RotationMotor.getPIDController();
-    public SparkMaxPIDController FR_PID = FR_Module.RotationMotor.getPIDController();
-    public SparkMaxPIDController RL_PID = RL_Module.RotationMotor.getPIDController();
-    public SparkMaxPIDController RR_PID = RR_Module.RotationMotor.getPIDController();
 
     //----------------------------------------------------------------
     // Functions
@@ -93,63 +77,63 @@ public class DriveSystem {
         // want these in radians and radians per second to use with WPILib's swerve
         // APIs. 
         // NOTE: Not sure what the value should be or if it's needed.
-        FL_encoder.setPositionConversionFactor(Settings.DegreeFactor); 
-        FR_encoder.setPositionConversionFactor(Settings.DegreeFactor); 
-        RL_encoder.setPositionConversionFactor(Settings.DegreeFactor); 
-        RR_encoder.setPositionConversionFactor(Settings.DegreeFactor); 
+        FL_Module.RotationVar.Encoder.setPositionConversionFactor(Settings.DegreeFactor); 
+        FR_Module.RotationVar.Encoder.setPositionConversionFactor(Settings.DegreeFactor); 
+        RL_Module.RotationVar.Encoder.setPositionConversionFactor(Settings.DegreeFactor); 
+        RR_Module.RotationVar.Encoder.setPositionConversionFactor(Settings.DegreeFactor); 
 
-        FL_encoder.setVelocityConversionFactor(Settings.RotationPerSecondsFactor); 
-        FR_encoder.setVelocityConversionFactor(Settings.RotationPerSecondsFactor); 
-        RL_encoder.setVelocityConversionFactor(Settings.RotationPerSecondsFactor); 
-        RR_encoder.setVelocityConversionFactor(Settings.RotationPerSecondsFactor); 
+        FL_Module.RotationVar.Encoder.setVelocityConversionFactor(Settings.RotationPerSecondsFactor); 
+        FR_Module.RotationVar.Encoder.setVelocityConversionFactor(Settings.RotationPerSecondsFactor); 
+        RL_Module.RotationVar.Encoder.setVelocityConversionFactor(Settings.RotationPerSecondsFactor); 
+        RR_Module.RotationVar.Encoder.setVelocityConversionFactor(Settings.RotationPerSecondsFactor); 
 
         // Enable PID wrap around for the turning motor. This will allow the PID
         // controller to go through 0 to get to the setpoint i.e. going from 350
         // degrees to 10 degrees will go through 0 rather than the other direction
         // which is a longer route.
-        FL_PID.setPositionPIDWrappingEnabled(true);
-        FL_PID.setPositionPIDWrappingMinInput(Settings.MinimalAngle);
-        FL_PID.setPositionPIDWrappingMaxInput(Settings.MaximumAngle);
+        FL_Module.RotationVar.PID.setPositionPIDWrappingEnabled(true);
+        FL_Module.RotationVar.PID.setPositionPIDWrappingMinInput(Settings.MinimalAngle);
+        FL_Module.RotationVar.PID.setPositionPIDWrappingMaxInput(Settings.MaximumAngle);
 
-        FR_PID.setPositionPIDWrappingEnabled(true);
-        FR_PID.setPositionPIDWrappingMinInput(Settings.MinimalAngle);
-        FR_PID.setPositionPIDWrappingMaxInput(Settings.MaximumAngle);
+        FR_Module.RotationVar.PID.setPositionPIDWrappingEnabled(true);
+        FR_Module.RotationVar.PID.setPositionPIDWrappingMinInput(Settings.MinimalAngle);
+        FR_Module.RotationVar.PID.setPositionPIDWrappingMaxInput(Settings.MaximumAngle);
 
-        RL_PID.setPositionPIDWrappingEnabled(true);
-        RL_PID.setPositionPIDWrappingMinInput(Settings.MinimalAngle);
-        RL_PID.setPositionPIDWrappingMaxInput(Settings.MaximumAngle);
+        RL_Module.RotationVar.PID.setPositionPIDWrappingEnabled(true);
+        RL_Module.RotationVar.PID.setPositionPIDWrappingMinInput(Settings.MinimalAngle);
+        RL_Module.RotationVar.PID.setPositionPIDWrappingMaxInput(Settings.MaximumAngle);
 
-        RR_PID.setPositionPIDWrappingEnabled(true);
-        RR_PID.setPositionPIDWrappingMinInput(Settings.MinimalAngle);
-        RR_PID.setPositionPIDWrappingMaxInput(Settings.MaximumAngle);
+        RR_Module.RotationVar.PID.setPositionPIDWrappingEnabled(true);
+        RR_Module.RotationVar.PID.setPositionPIDWrappingMinInput(Settings.MinimalAngle);
+        RR_Module.RotationVar.PID.setPositionPIDWrappingMaxInput(Settings.MaximumAngle);
 
         // Set the PID Controller to use the duty cycle encoder on the swerve
         // module instead of the built in NEO550 encoder.
-        FL_PID.setFeedbackDevice(FL_encoder);
-        FR_PID.setFeedbackDevice(FR_encoder);
-        RL_PID.setFeedbackDevice(RL_encoder);
-        RR_PID.setFeedbackDevice(RR_encoder);
+        FL_Module.RotationVar.PID.setFeedbackDevice(FL_Module.RotationVar.Encoder);
+        FL_Module.RotationVar.PID.setFeedbackDevice(FR_Module.RotationVar.Encoder);
+        FL_Module.RotationVar.PID.setFeedbackDevice(RL_Module.RotationVar.Encoder);
+        FL_Module.RotationVar.PID.setFeedbackDevice(RR_Module.RotationVar.Encoder);
 
         // Set the PID gains for the turning motor.
-        FL_PID.setP(FL_Module.RotationVar.Settings.P);
-        FL_PID.setI(FL_Module.RotationVar.Settings.I);
-        FL_PID.setD(FL_Module.RotationVar.Settings.D);
-        FL_PID.setOutputRange(FL_Module.RotationVar.Settings.MinimalOutput, FL_Module.RotationVar.Settings.MaximalOutput);
+        FL_Module.RotationVar.PID.setP(FL_Module.RotationVar.Settings.P);
+        FL_Module.RotationVar.PID.setI(FL_Module.RotationVar.Settings.I);
+        FL_Module.RotationVar.PID.setD(FL_Module.RotationVar.Settings.D);
+        FL_Module.RotationVar.PID.setOutputRange(FL_Module.RotationVar.Settings.MinimalOutput, FL_Module.RotationVar.Settings.MaximalOutput);
 
-        FR_PID.setP(FR_Module.RotationVar.Settings.P);
-        FR_PID.setI(FR_Module.RotationVar.Settings.I);
-        FR_PID.setD(FR_Module.RotationVar.Settings.D);
-        FR_PID.setOutputRange(FR_Module.RotationVar.Settings.MinimalOutput, FR_Module.RotationVar.Settings.MaximalOutput);
+        FR_Module.RotationVar.PID.setP(FR_Module.RotationVar.Settings.P);
+        FR_Module.RotationVar.PID.setI(FR_Module.RotationVar.Settings.I);
+        FR_Module.RotationVar.PID.setD(FR_Module.RotationVar.Settings.D);
+        FR_Module.RotationVar.PID.setOutputRange(FR_Module.RotationVar.Settings.MinimalOutput, FR_Module.RotationVar.Settings.MaximalOutput);
 
-        RL_PID.setP(RL_Module.RotationVar.Settings.P);
-        RL_PID.setI(RL_Module.RotationVar.Settings.I);
-        RL_PID.setD(RL_Module.RotationVar.Settings.D);
-        RL_PID.setOutputRange(RL_Module.RotationVar.Settings.MinimalOutput, RL_Module.RotationVar.Settings.MaximalOutput);
+        RL_Module.RotationVar.PID.setP(RL_Module.RotationVar.Settings.P);
+        RL_Module.RotationVar.PID.setI(RL_Module.RotationVar.Settings.I);
+        RL_Module.RotationVar.PID.setD(RL_Module.RotationVar.Settings.D);
+        RL_Module.RotationVar.PID.setOutputRange(RL_Module.RotationVar.Settings.MinimalOutput, RL_Module.RotationVar.Settings.MaximalOutput);
 
-        RR_PID.setP(RR_Module.RotationVar.Settings.P);
-        RR_PID.setI(RR_Module.RotationVar.Settings.I);
-        RR_PID.setD(RR_Module.RotationVar.Settings.D);
-        RR_PID.setOutputRange(RR_Module.RotationVar.Settings.MinimalOutput, RR_Module.RotationVar.Settings.MaximalOutput);
+        RR_Module.RotationVar.PID.setP(RR_Module.RotationVar.Settings.P);
+        RR_Module.RotationVar.PID.setI(RR_Module.RotationVar.Settings.I);
+        RR_Module.RotationVar.PID.setD(RR_Module.RotationVar.Settings.D);
+        RR_Module.RotationVar.PID.setOutputRange(RR_Module.RotationVar.Settings.MinimalOutput, RR_Module.RotationVar.Settings.MaximalOutput);
 
         FL_Module.RotationMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         FR_Module.RotationMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -173,9 +157,9 @@ public class DriveSystem {
         ProcessValue.Straffe_Y      = ProcessValue.Deadspot((Left_Y * -1), Settings.deadspot);
         ProcessValue.RotationLength = Right_X;
 
-        SmartDashboard.putNumber("Controller Left Y" , ProcessValue.Straffe_Y);
-        SmartDashboard.putNumber("Controller Left X" , ProcessValue.Straffe_X);
-        SmartDashboard.putNumber("Controller Right X", ProcessValue.RotationLength);
+        Measuring.ReadDouble("Controller Left Y" , ProcessValue.Straffe_Y);
+        Measuring.ReadDouble("Controller Left X" , ProcessValue.Straffe_X);
+        Measuring.ReadDouble("Controller Right X", ProcessValue.RotationLength);
  
         // Calculate Diagonal to calculate the X and Y of Rotation vector.
         ProcessValue.DiagonalLength = ProcessValue.ResultingVector(Settings.Width, Settings.Length);
@@ -250,7 +234,7 @@ public class DriveSystem {
             RL_Module.RotationVar.ProcessValue.Angle = ProcessValue.SetAngleRange(RL_Module.RotationVar.ProcessValue.Angle);
             RR_Module.RotationVar.ProcessValue.Angle = ProcessValue.SetAngleRange(RR_Module.RotationVar.ProcessValue.Angle);
         }
-
+    
         // Set Speed of wheel
         /*FL_Module.TranslationMotor.set(ControlMode.PercentOutput, FL_Module.TranslationVar.ProcessValue.Speed);
         FR_Module.TranslationMotor.set(ControlMode.PercentOutput, FR_Module.TranslationVar.ProcessValue.Speed);
@@ -263,17 +247,17 @@ public class DriveSystem {
         RL_PID.setReference(RL_Module.RotationVar.ProcessValue.Angle, CANSparkMax.ControlType.kPosition);
         RR_PID.setReference(RR_Module.RotationVar.ProcessValue.Angle, CANSparkMax.ControlType.kPosition);*/
 
-        Measuring.ReadValue("Front left speed" , FL_Module.TranslationVar.ProcessValue.Speed);
-        Measuring.ReadValue("Front Right speed", FR_Module.TranslationVar.ProcessValue.Speed);
-        Measuring.ReadValue("Rear left speed"  , RL_Module.TranslationVar.ProcessValue.Speed);
-        Measuring.ReadValue("Rear Right speed" , RR_Module.TranslationVar.ProcessValue.Speed);
+        Measuring.ReadDouble("Front left speed" , FL_Module.TranslationVar.ProcessValue.Speed);
+        Measuring.ReadDouble("Front Right speed", FR_Module.TranslationVar.ProcessValue.Speed);
+        Measuring.ReadDouble("Rear left speed"  , RL_Module.TranslationVar.ProcessValue.Speed);
+        Measuring.ReadDouble("Rear Right speed" , RR_Module.TranslationVar.ProcessValue.Speed);
 
-        Measuring.ReadValue("Front left Angle" , FL_Module.RotationVar.ProcessValue.Angle);
-        Measuring.ReadValue("Front Right Angle", FR_Module.RotationVar.ProcessValue.Angle);
-        Measuring.ReadValue("Rear left Angle"  , RL_Module.RotationVar.ProcessValue.Angle);
-        Measuring.ReadValue("Rear Right Angle" , RR_Module.RotationVar.ProcessValue.Angle);
+        Measuring.ReadDouble("Front left Angle" , FL_Module.RotationVar.ProcessValue.Angle);
+        Measuring.ReadDouble("Front Right Angle", FR_Module.RotationVar.ProcessValue.Angle);
+        Measuring.ReadDouble("Rear left Angle"  , RL_Module.RotationVar.ProcessValue.Angle);
+        Measuring.ReadDouble("Rear Right Angle" , RR_Module.RotationVar.ProcessValue.Angle);
 
-        Measuring.ReadValue("Status Max Speed", Status.MaxSpeedRange[1]);
+        Measuring.ReadDouble("Status Max Speed", Status.MaxSpeedRange[1]);
 
     }
 

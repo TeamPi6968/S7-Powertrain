@@ -20,8 +20,19 @@ public class Measuring {
     * @param Name Name that is shown in the smartdashboard page.
     * @param Value The value your going to read.
     */
-    public void ReadValue(String Name,double Value){
+    public void ReadDouble(String Name,double Value){
         SmartDashboard.putNumber(Name , Value);
+    }
+
+    /**
+    * This is to put a value inside the {@code Smartdashboard} overview 
+    * to read the state of the value when robot is enabled.
+    *
+    * @param Name Name that is shown in the smartdashboard page.
+    * @param Value The value your going to read.
+    */
+    public void ReadBoolean(String Name, Boolean Value){
+        SmartDashboard.putBoolean(Name , Value);
     }
 
     /**

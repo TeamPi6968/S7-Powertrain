@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.EquipmentModules.DriveSystem.DriveSystem;
 import frc.robot.EquipmentModules.General.Controller.Controller;
+import frc.robot.EquipmentModules.General.Functions.Measuring;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -26,6 +27,7 @@ public class Robot extends TimedRobot {
   // Equipment Modules
   //====================================================================
   private Controller Controller = new Controller();
+  private Measuring Measuring = new Measuring();
   private DriveSystem DriveSystem = new DriveSystem();
   
 
@@ -91,7 +93,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    
+  
   boolean toggle = Controller.ControllerVar.Status.Toggle(Controller.Driving.getOptionsButtonPressed());
 
     // When option button is pressed then the slow speed factor is activated 
@@ -104,8 +106,10 @@ public class Robot extends TimedRobot {
     }
 
     DriveSystem.SwerveLoop(Controller.Driving.getLeftX(), Controller.Driving.getLeftY(), Controller.Driving.getRightX());
-  }
+  
 
+  }
+  
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {}

@@ -12,23 +12,22 @@ public class SwerveModule {
     //----------------------------------------------------------------
     public TalonFX TranslationMotor;
     public CANSparkMax RotationMotor;
-    public TranslationVar TranslationVar = new TranslationVar();
-    public RotationVar RotationVar = new RotationVar();
-    public ProcessValues ProcessValues = new ProcessValues();
+
     //----------------------------------------------------------------
     // Constructor
     //----------------------------------------------------------------
     public SwerveModule(TalonFX TranslationMotor, CANSparkMax RotationMotor){
         this.TranslationMotor = TranslationMotor;
         this.RotationMotor = RotationMotor;
+
     }
 
     //----------------------------------------------------------------
     // Objects
     //----------------------------------------------------------------   
-
-
-
+    public TranslationVar TranslationVar = new TranslationVar();
+    public RotationVar RotationVar = new RotationVar(this.RotationMotor);
+    public ProcessValues ProcessValues = new ProcessValues();
     //----------------------------------------------------------------
     // Functions
     //----------------------------------------------------------------  

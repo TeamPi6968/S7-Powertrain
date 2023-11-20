@@ -22,6 +22,21 @@ public class FakePS4Controller extends GenericHID{
     
     /** Represents a digital button on a PS4Controller. */
   public enum Button {
+    kSquare(3),
+    kCross(1),
+    kCircle(2),
+    kTriangle(4),
+    kL1(5),
+    kR1(6),
+    kL2(7),
+    kR2(8),
+    kShare(7),
+    kOptions(8),
+    kL3(9),
+    kR3(10),
+    kPS(13),// Doesn't work
+    kTouchpad(14);// Doesn't work
+/*
     kSquare(1),
     kCross(2),
     kCircle(3),
@@ -35,7 +50,7 @@ public class FakePS4Controller extends GenericHID{
     kL3(11),
     kR3(12),
     kPS(13),
-    kTouchpad(14);
+    kTouchpad(14); */
 
     public final int value;
 
@@ -65,10 +80,17 @@ public class FakePS4Controller extends GenericHID{
   public enum Axis {
     kLeftX(0),
     kLeftY(1),
+    kRightX(4),
+    kRightY(5),
+    kL2(2),
+    kR2(3);
+
+    /*kLeftX(0),
+    kLeftY(1),
     kRightX(2),
     kRightY(5),
     kL2(3),
-    kR2(4);
+    kR2(4);*/
 
     public final int value;
 
@@ -577,6 +599,7 @@ public class FakePS4Controller extends GenericHID{
 
   /**
    * Read the value of the PS button on the controller.
+   * {@code NOTE:} Doesn't work for fake PS4 Controller. 
    *
    * @return The state of the button.
    */
@@ -586,6 +609,7 @@ public class FakePS4Controller extends GenericHID{
 
   /**
    * Whether the PS button was pressed since the last check.
+   * {@code NOTE:} Doesn't work for fake PS4 Controller.
    *
    * @return Whether the button was pressed since the last check.
    */
@@ -595,6 +619,7 @@ public class FakePS4Controller extends GenericHID{
 
   /**
    * Whether the PS button was released since the last check.
+   * {@code NOTE:} Doesn't work for fake PS4 Controller.
    *
    * @return Whether the button was released since the last check.
    */
@@ -654,6 +679,7 @@ public class FakePS4Controller extends GenericHID{
 
   /**
    * Read the value of the touchpad on the controller.
+   * {@code NOTE:} Doesn't work for fake PS4 Controller.
    *
    * @return The state of the touchpad.
    */
@@ -663,6 +689,7 @@ public class FakePS4Controller extends GenericHID{
 
   /**
    * Whether the touchpad was pressed since the last check.
+   * {@code NOTE:} Doesn't work for fake PS4 Controller.
    *
    * @return Whether the touchpad was pressed since the last check.
    */
@@ -672,6 +699,7 @@ public class FakePS4Controller extends GenericHID{
 
   /**
    * Whether the touchpad was released since the last check.
+   * {@code NOTE:} Doesn't work for fake PS4 Controller.
    *
    * @return Whether the touchpad was released since the last check.
    */
@@ -680,7 +708,8 @@ public class FakePS4Controller extends GenericHID{
   }
 
   /**
-   * Constructs an event instance around the touchpad's digital signal.
+   * Constructs an event instance around the touchpad's digital signal. 
+   * {@code NOTE:} Doesn't work for fake PS4 Controller.
    *
    * @param loop the event loop instance to attach the event to.
    * @return an event instance representing the touchpad's digital signal attached to the given

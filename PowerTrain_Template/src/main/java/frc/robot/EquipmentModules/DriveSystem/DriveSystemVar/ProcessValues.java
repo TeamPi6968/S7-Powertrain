@@ -1,5 +1,5 @@
 package frc.robot.EquipmentModules.DriveSystem.DriveSystemVar;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //====================================================================
 // ProcessValue structure
 //====================================================================
@@ -24,7 +24,6 @@ public class ProcessValues {
     private double MaxNew;
     private double OldRange;
     private double NewRange;
-    private double SpeedFactor;
 
     //----------------------------------------------------------------
     // Objects
@@ -92,6 +91,7 @@ public class ProcessValues {
         this.MinNew = NewRange[0];
         this.MaxNew = NewRange[1];
         this.NewRange = (Setpoints.MaxSpeedFactor * this.MaxNew) - this.MinNew;
+        SmartDashboard.putNumber("MaxSpeedFactor" , Setpoints.MaxSpeedFactor);
 
         // Convert old range into new range
         return (((Value - this.MinOld) * this.NewRange) / this.OldRange) + this.MinNew;
